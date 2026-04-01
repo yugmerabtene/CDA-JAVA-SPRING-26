@@ -38,6 +38,13 @@ public class HomeController {
 
 Le controleur d'accueil est volontairement minimal pour garder une entree publique simple dans l'application.
 
+### Lecture detaillee de `HomeController.java`
+
+1. `@Controller` indique qu'il s'agit d'un controleur MVC.
+2. `@GetMapping("/")` associe la methode a la route racine.
+3. La methode `home()` retourne simplement le nom de template `index`.
+4. Cette classe ne contient volontairement aucune logique metier.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/controller/AuthController.java`
 
 ```java
@@ -105,6 +112,21 @@ Ce controleur devient la jonction entre:
 - la validation Bean Validation
 - la logique metier d'inscription du service
 
+### Lecture detaillee de `AuthController.java`
+
+1. `AuthController` injecte `AuthService` et non l'implementation concrete.
+2. `registerPage(Model model)` prepare le DTO vide `registerRequest` pour Thymeleaf.
+3. `return "auth/register";` demande le rendu du template `templates/auth/register.html`.
+4. La methode `register(...)` traite la soumission du formulaire.
+5. `@Valid` declenche Bean Validation sur `RegisterRequestDto`.
+6. `BindingResult` recupere les erreurs de validation de formulaire.
+7. Si `bindingResult.hasErrors()` est vrai, on reaffiche directement la page d'inscription.
+8. Sinon, le controleur appelle `authService.register(request)`.
+9. Le `try/catch` intercepte une `BusinessException` venant de la couche metier.
+10. `model.addAttribute("errorMessage", ex.getMessage())` remonte l'erreur dans la vue.
+11. En cas de succes, la methode redirige vers `/login?registered`.
+12. `loginPage()` retourne simplement le template de connexion.
+
 ## Fichier 3 - `src/main/java/com/cda/cdajava/controller/ProfileController.java`
 
 ```java
@@ -169,6 +191,22 @@ Ce controleur entrelace deja deux notions importantes du projet:
 - l'utilisateur actuellement authentifie
 - la lecture et la mise a jour de son profil via `UserService`
 
+### Lecture detaillee de `ProfileController.java`
+
+1. Le controleur injecte `UserService`.
+2. `profile(Model model, Authentication authentication)` gere l'affichage de la page profil.
+3. `authentication.getName()` recupere le username de l'utilisateur connecte.
+4. `userService.getProfile(...)` charge les donnees du profil sous forme de DTO.
+5. Un `UpdateProfileDto` est ensuite construit pour pre-remplir le formulaire de modification.
+6. `model.addAttribute("profile", profile)` injecte les donnees d'affichage.
+7. `model.addAttribute("updateProfile", form)` injecte l'objet de formulaire.
+8. `return "profile/profile";` rend le template profil.
+9. La methode `updateProfile(...)` traite la soumission du formulaire profil.
+10. `@Valid` declenche Bean Validation sur `UpdateProfileDto`.
+11. En cas d'erreur, le profil est recharge pour que la page reste complete.
+12. En cas de succes, `userService.updateProfile(...)` applique la modification.
+13. La redirection `/profile?updated` permet d'afficher un message de succes.
+
 ## Fichier 4 - `src/main/resources/templates/index.html`
 
 ```html
@@ -197,6 +235,16 @@ Ce controleur entrelace deja deux notions importantes du projet:
 ```
 
 La page d'accueil pose le ton du projet et oriente immediatement vers les deux flux publics: inscription et connexion.
+
+### Lecture detaillee de `index.html`
+
+1. Le document declare `xmlns:th` pour utiliser Thymeleaf.
+2. Le `<title>` nomme la page d'accueil.
+3. Bootstrap est charge via CDN.
+4. `th:href="@{/css/app.css}"` charge la feuille CSS du projet.
+5. Le `<main>` encadre le contenu principal.
+6. Le bloc `hero-panel` sert de panneau visuel central.
+7. Les deux liens `@{/register}` et `@{/login}` orientent vers les parcours publics.
 
 ## Fichier 5 - `src/main/resources/templates/auth/register.html`
 
@@ -260,6 +308,16 @@ La page d'accueil pose le ton du projet et oriente immediatement vers les deux f
 Le template d'inscription est lie au DTO `registerRequest` defini dans le controleur.
 Chaque champ et chaque erreur de validation ont deja leur place.
 
+### Lecture detaillee de `register.html`
+
+1. Le template reprend Bootstrap et la feuille CSS commune.
+2. `th:if="${errorMessage}"` affiche l'erreur metier si elle existe.
+3. `th:action="@{/register}"` pointe vers le POST du controleur.
+4. `th:object="${registerRequest}"` relie le formulaire au DTO.
+5. Chaque `th:field="*{...}"` relie un champ HTML a une propriete du DTO.
+6. Chaque `th:errors="*{...}"` affiche les erreurs de Bean Validation associees.
+7. Le bouton final soumet le formulaire d'inscription.
+
 ## Fichier 6 - `src/main/resources/templates/auth/login.html`
 
 ```html
@@ -302,6 +360,15 @@ Chaque champ et chaque erreur de validation ont deja leur place.
 ```
 
 La page de login reste simple, car l'authentification elle-meme sera prise en charge par Spring Security au chapitre suivant.
+
+### Lecture detaillee de `login.html`
+
+1. Le template charge Bootstrap et le CSS du projet.
+2. `th:if="${param.registered}"` affiche un message de succes apres inscription.
+3. `th:if="${param.error}"` affiche un message en cas d'echec d'authentification.
+4. Le formulaire poste vers `@{/login}`.
+5. Les champs `username` et `password` utilisent les noms attendus par Spring Security.
+6. Le bouton soumet la tentative de connexion.
 
 ## Fichier 7 - `src/main/resources/templates/profile/profile.html`
 
@@ -360,6 +427,17 @@ La page de login reste simple, car l'authentification elle-meme sera prise en ch
 La page profil ferme le premier vrai parcours utilisateur du projet:
 inscription, connexion, affichage du compte, modification des informations.
 
+### Lecture detaillee de `profile.html`
+
+1. Le haut de page affiche les informations de lecture du profil.
+2. `th:text="${profile.username}"` et `th:text="${profile.email}"` lisent les valeurs du DTO `profile`.
+3. `th:if="${param.updated}"` affiche un message apres redirection de succes.
+4. Le second bloc contient le formulaire de modification.
+5. `th:object="${updateProfile}"` relie le formulaire au DTO de mise a jour.
+6. `th:field="*{firstName}"` et `th:field="*{lastName}"` lient les champs au DTO.
+7. `th:errors` affiche les erreurs eventuelles.
+8. Le formulaire de logout poste vers `@{/logout}` pour deconnexion Spring Security.
+
 ## Fichier 8 - `src/main/resources/static/css/app.css`
 
 ```css
@@ -390,6 +468,14 @@ body {
 
 La feuille de style reste volontairement courte.
 Le but du cours est de montrer une interface propre et utilisable sans faire deriver le projet vers un chantier frontend trop lourd.
+
+### Lecture detaillee de `app.css`
+
+1. `:root` definit quelques variables CSS reutilisables.
+2. `body` applique un fond degrade et une hauteur minimale pleine page.
+3. `color: #f0f4f8;` fixe la couleur de texte principale sur le fond sombre.
+4. `.hero-panel` stylise la carte principale de la page d'accueil.
+5. `.card` redonne un fond clair aux cartes de formulaire et de profil.
 
 ## Fichier 9 - `src/test/java/com/cda/cdajava/controller/AuthControllerWebMvcTest.java`
 
@@ -444,6 +530,17 @@ class AuthControllerWebMvcTest {
 
 Ce test valide la couche MVC sans demarrer toute l'application complete.
 Il joue donc un role de garde-fou rapide avant le branchement complet de la securite.
+
+### Lecture detaillee de `AuthControllerWebMvcTest.java`
+
+1. `@WebMvcTest(controllers = AuthController.class)` charge seulement la couche MVC du controleur cible.
+2. `@Import(SecurityConfig.class)` ajoute la configuration de securite necessaire au test web.
+3. `@MockBean private AuthService authService;` remplace le vrai service par un mock Spring.
+4. Le premier test verifie simplement que `GET /register` retourne `200 OK`.
+5. Le second test simule un vrai POST de formulaire sur `/register`.
+6. `.with(csrf())` ajoute le token CSRF attendu par Spring Security.
+7. Les `.param(...)` remplissent les champs du formulaire.
+8. Le test attend une redirection vers `/login?registered`.
 
 ## Resultat attendu
 

@@ -27,5 +27,6 @@ Ce que tu trouveras dans chaque chapitre:
 - l'objectif de la brique
 - l'ordre exact d'implementation
 - les fichiers complets a creer ou mettre a jour
+- la lecture detaillee du code important
 - la commande de validation
 - le resultat attendu avant de passer au chapitre suivant

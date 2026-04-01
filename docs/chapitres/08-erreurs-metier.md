@@ -27,6 +27,13 @@ public class BusinessException extends RuntimeException {
 Cette exception est utilisee pour les erreurs fonctionnelles attendues.
 Elle se distingue volontairement des erreurs techniques imprevues.
 
+### Lecture detaillee de `BusinessException.java`
+
+1. La classe herite de `RuntimeException`.
+2. Cela permet de la lever sans declaration obligatoire dans les signatures de methode.
+3. Le constructeur prend simplement un message lisible.
+4. Le projet utilise cette exception pour remonter des erreurs metier attendues vers la couche web.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/exception/GlobalExceptionHandler.java`
 
 ```java
@@ -48,6 +55,14 @@ public class GlobalExceptionHandler {
 ```
 
 Avec ce handler, l'application MVC garde une sortie propre lorsque le metier leve une erreur connue.
+
+### Lecture detaillee de `GlobalExceptionHandler.java`
+
+1. `@ControllerAdvice` applique ce handler a l'ensemble des controleurs MVC.
+2. `@ExceptionHandler(BusinessException.class)` cible specifiquement les erreurs metier.
+3. La methode `handleBusiness(...)` recoit l'exception levee.
+4. `model.addAttribute("errorMessage", ex.getMessage())` rend le message disponible dans la vue.
+5. `return "error/business";` affiche le template d'erreur metier.
 
 ## Fichier 3 - `src/main/resources/templates/error/business.html`
 
@@ -71,6 +86,13 @@ Avec ce handler, l'application MVC garde une sortie propre lorsque le metier lev
 
 La page d'erreur reste volontairement simple.
 Le but ici est la lisibilite fonctionnelle, pas la sophistication visuelle.
+
+### Lecture detaillee de `business.html`
+
+1. Le template charge Bootstrap pour garder une presentation propre.
+2. `th:text="${errorMessage}"` affiche le message fourni par le handler global.
+3. Le lien de retour `@{/}` permet de revenir facilement a l'accueil.
+4. Ce template sert de sortie commune a plusieurs erreurs metier possibles.
 
 ## Resultat attendu
 

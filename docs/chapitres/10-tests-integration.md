@@ -49,6 +49,18 @@ public abstract class AbstractContainerIT {
 Cette classe factorise tout le socle d'integration.
 Les tests reels du projet pourront ainsi se concentrer sur leur comportement sans recopier la configuration des conteneurs.
 
+### Lecture detaillee de `AbstractContainerIT.java`
+
+1. `@Testcontainers(disabledWithoutDocker = true)` active Testcontainers pour cette hierarchie de tests.
+2. `MYSQL_CONTAINER` demarre un vrai MySQL de test.
+3. `withDatabaseName`, `withUsername` et `withPassword` prepareront la base temporaire.
+4. `REDIS_CONTAINER` demarre un vrai Redis de test.
+5. `withExposedPorts(6379)` expose le port Redis du conteneur.
+6. `@DynamicPropertySource` permet d'injecter dynamiquement les valeurs runtime dans Spring.
+7. `spring.datasource.url`, `username` et `password` sont remplaces par ceux du conteneur MySQL.
+8. `spring.data.redis.host` et `spring.data.redis.port` sont remplaces par ceux du conteneur Redis.
+9. Cette classe est la base commune des tests d'integration reels du projet.
+
 ## Fichier 2 - `src/test/java/com/cda/cdajava/integration/AuthFlowIT.java`
 
 ```java
@@ -100,6 +112,20 @@ class AuthFlowIT extends AbstractContainerIT {
 
 Ce test rejoue le flux reel d'inscription au niveau web, jusqu'a la persistence en base.
 Il verifie donc plusieurs couches en une seule fois.
+
+### Lecture detaillee de `AuthFlowIT.java`
+
+1. `@SpringBootTest` demarre l'application complete pour le test.
+2. `@AutoConfigureMockMvc` permet de piloter la couche web sans navigateur reel.
+3. `@ActiveProfiles("test")` active le profil de test.
+4. La classe herite de `AbstractContainerIT`, donc MySQL et Redis sont disponibles.
+5. `MockMvc` est injecte pour rejouer une requete HTTP MVC.
+6. `UserRepository` est injecte pour verifier la persistence finale.
+7. Le test envoie un `POST /register` avec un token CSRF.
+8. Les `.param(...)` remplissent le formulaire d'inscription.
+9. Le test attend une redirection vers `/login?registered`.
+10. `userRepository.findByUsername("bob")` verifie que l'utilisateur existe bien en base.
+11. L'assertion finale verifie que le mot de passe stocke n'est pas le mot de passe brut.
 
 ## Fichier 3 - `src/test/java/com/cda/cdajava/integration/RedisCacheIT.java`
 
@@ -162,6 +188,21 @@ class RedisCacheIT extends AbstractContainerIT {
 
 Ce second test d'integration se concentre sur le cache Redis.
 Il prouve que l'application finale n'est pas seulement correcte fonctionnellement, mais aussi coherente sur son comportement de cache.
+
+### Lecture detaillee de `RedisCacheIT.java`
+
+1. `@SpringBootTest` charge l'application complete.
+2. `@ActiveProfiles("test")` active le profil de test.
+3. `AuthService` est utilise pour inscrire un utilisateur de facon metier.
+4. `UserService` est ensuite utilise pour lire et modifier le profil.
+5. `CacheManager` permet d'observer l'etat du cache applique par Spring.
+6. Le test construit un `RegisterRequestDto` et appelle `authService.register(request)`.
+7. `userService.getProfile("cache-user")` declenche la lecture et la mise en cache du profil.
+8. `cacheManager.getCache("profiles")` recupere le cache cible.
+9. `assertThat(cache.get("cache-user")).isNotNull()` prouve que l'entree est bien en cache.
+10. Un `UpdateProfileDto` est ensuite construit.
+11. `userService.updateProfile(...)` modifie le profil et evince l'entree de cache.
+12. `assertThat(cache.get("cache-user")).isNull()` verifie l'eviction.
 
 ## Validation
 

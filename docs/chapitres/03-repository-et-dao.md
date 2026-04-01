@@ -33,6 +33,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 Avec ce repository, Spring Data genere directement les operations necessaires sans ecriture SQL manuelle dans le code Java.
 
+### Lecture detaillee de `UserRepository.java`
+
+1. `JpaRepository<User, Long>` donne deja les operations CRUD de base.
+2. Le type `User` indique l'entite geree.
+3. Le type `Long` indique le type de cle primaire.
+4. `findByUsername` sera utilise par la securite et la lecture du profil.
+5. `existsByUsername` servira a bloquer les doublons a l'inscription.
+6. `existsByEmail` sert au meme objectif sur l'email.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/repository/RoleRepository.java`
 
 ```java
@@ -52,6 +61,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
 Le point important ici est la signature `findByName(RoleName name)`.
 On reste coherent avec l'enum metier au lieu de repasser sur une chaine de caracteres.
+
+### Lecture detaillee de `RoleRepository.java`
+
+1. `JpaRepository<Role, Long>` apporte les operations de base sur l'entite `Role`.
+2. `findByName(RoleName name)` repose sur l'enum metier.
+3. Le retour `Optional<Role>` force l'appelant a traiter explicitement le cas d'absence.
 
 ## Fichier 3 - `src/main/java/com/cda/cdajava/dao/UserDao.java`
 
@@ -77,6 +92,13 @@ public interface UserDao {
 Cette interface correspond deja exactement aux besoins des services qui vont suivre.
 On ne cree pas un DAO generique trop large: on expose seulement ce que le projet utilise vraiment.
 
+### Lecture detaillee de `UserDao.java`
+
+1. `findByUsername` est la lecture principale du projet.
+2. `existsByUsername` et `existsByEmail` exposent des verifications metier simples.
+3. `save` permet d'enregistrer aussi bien un nouvel utilisateur qu'une mise a jour.
+4. L'interface formalise ce dont les services ont besoin, sans exposer tout le repository.
+
 ## Fichier 4 - `src/main/java/com/cda/cdajava/dao/RoleDao.java`
 
 ```java
@@ -95,6 +117,12 @@ public interface RoleDao {
 
 Le DAO de role est tres petit, ce qui est normal.
 Dans l'application finale, son besoin principal est de retrouver le role par defaut au moment de l'inscription.
+
+### Lecture detaillee de `RoleDao.java`
+
+1. L'interface ne contient qu'une methode, ce qui est volontaire.
+2. `findByName(RoleName name)` correspond exactement au besoin du service d'inscription.
+3. Comme pour le repository, le retour est un `Optional<Role>`.
 
 ## Fichier 5 - `src/main/java/com/cda/cdajava/dao/impl/UserDaoImpl.java`
 
@@ -142,6 +170,16 @@ public class UserDaoImpl implements UserDao {
 Ici, l'implementation se contente de deleguer au repository.
 Cette couche devient utile pedagogiquement, car elle permet au service de dependre d'une couche d'acces aux donnees explicite.
 
+### Lecture detaillee de `UserDaoImpl.java`
+
+1. `@Repository` declare ce composant comme une couche d'acces aux donnees.
+2. `private final UserRepository userRepository;` injecte le repository sous-jacent.
+3. Le constructeur impose l'injection de cette dependance.
+4. `findByUsername` ne fait que deleguer au repository.
+5. `existsByUsername` et `existsByEmail` deleguent aussi.
+6. `save` centralise l'enregistrement via Spring Data.
+7. La classe ne contient pas de logique metier, ce qui est un bon signe.
+
 ## Fichier 6 - `src/main/java/com/cda/cdajava/dao/impl/RoleDaoImpl.java`
 
 ```java
@@ -173,6 +211,14 @@ public class RoleDaoImpl implements RoleDao {
 
 Avec cette derniere piece, l'acces aux donnees est pret.
 Le chapitre suivant peut maintenant se concentrer sur le vrai comportement metier: inscription, hash du mot de passe, affectation du role et profil utilisateur.
+
+### Lecture detaillee de `RoleDaoImpl.java`
+
+1. `@Repository` place cette classe dans la couche persistence.
+2. `private final RoleRepository roleRepository;` stocke le repository injecte.
+3. Le constructeur realise l'injection par constructeur.
+4. `findByName` delegue a `roleRepository.findByName(name)`.
+5. Comme pour `UserDaoImpl`, l'interet principal est structurel: preparer une couche DAO claire pour le service.
 ## Resultat attendu
 
 - les services disposent maintenant d'un acces propre aux donnees

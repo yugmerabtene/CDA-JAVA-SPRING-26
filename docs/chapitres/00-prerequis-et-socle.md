@@ -166,6 +166,31 @@ Pourquoi ce fichier est pose des le depart:
 - il nous evite de refaire le build a chaque chapitre
 - il garantit que les chapitres suivants sont alignes sur le vrai depot
 
+### Lecture detaillee de `pom.xml`
+
+1. `modelVersion` indique a Maven le modele de descripteur utilise.
+2. Le bloc `parent` rattache le projet a Spring Boot.
+3. `spring-boot-starter-parent` aligne un grand nombre de versions automatiquement.
+4. `groupId`, `artifactId` et `version` identifient techniquement le projet.
+5. `java.version` fixe Java 17 comme cible de compilation.
+6. `testcontainers.version` centralise la version des dependances Testcontainers.
+7. `spring-boot-starter-web` apporte Spring MVC, Tomcat embarque et le support HTTP.
+8. `spring-boot-starter-thymeleaf` apporte le moteur de templates HTML serveur.
+9. `spring-boot-starter-security` apporte la pile d'authentification et d'autorisation.
+10. `spring-boot-starter-data-jpa` apporte JPA, Hibernate et Spring Data.
+11. `spring-boot-starter-data-redis` apporte le client Redis.
+12. `spring-boot-starter-cache` active l'abstraction de cache Spring.
+13. `spring-boot-starter-validation` apporte Bean Validation pour les DTO.
+14. `flyway-core` et `flyway-mysql` servent aux migrations SQL.
+15. `mysql-connector-j` permet la connexion JDBC vers MySQL.
+16. `spring-boot-starter-test` fournit JUnit, AssertJ, Mockito et l'outillage de test Spring.
+17. `spring-security-test` ajoute les helpers de test pour la securite, comme `csrf()`.
+18. Les dependances Testcontainers permettent de lancer de vrais services de test en conteneurs.
+19. Le bloc `dependencyManagement` importe le BOM Testcontainers pour garder des versions coherentes.
+20. Le plugin `spring-boot-maven-plugin` sert au packaging et au lancement Spring Boot.
+21. Le plugin Surefire est configure pour inclure les tests `*Test.java` et `*IT.java`.
+22. Ce dernier point est essentiel pour que les tests unitaires et les tests d'integration soient executes dans le meme projet.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/CdaJavaApplication.java`
 
 ```java
@@ -188,6 +213,17 @@ Cette classe suffit pour demarrer l'application Spring Boot.
 A ce stade, elle ne porte encore aucune logique applicative.
 Son seul role est d'offrir un point d'entree stable au projet.
 
+### Lecture detaillee de `CdaJavaApplication.java`
+
+1. La ligne `package com.cda.cdajava;` place la classe dans le package racine du projet.
+2. `SpringApplication` est l'utilitaire Spring Boot qui demarre le contexte.
+3. `@SpringBootApplication` regroupe plusieurs annotations Spring importantes.
+4. Cette annotation active notamment l'auto-configuration et le scan des composants.
+5. La classe `CdaJavaApplication` est la classe d'entree du programme.
+6. La methode `main` est le point d'entree Java standard.
+7. `SpringApplication.run(...)` lance l'application complete.
+8. A partir de cet appel, Spring charge les configurations, les composants et le serveur web embarque.
+
 ## Fichier 3 - `src/test/java/com/cda/cdajava/CdaJavaApplicationTests.java`
 
 ```java
@@ -208,6 +244,16 @@ Pour le premier chapitre, on veut juste disposer d'un point d'ancrage de test.
 
 Dans un vrai parcours de construction, ce premier test sert a repondre a une question simple:
 "est-ce que mon projet de base tient debout avant que j'ajoute la base de donnees, la securite, Redis et les vues ?"
+
+### Lecture detaillee de `CdaJavaApplicationTests.java`
+
+1. La ligne `package` garde le test dans le meme espace logique que l'application.
+2. `@Test` indique a JUnit qu'il s'agit d'une methode de test.
+3. La classe de test est volontairement minimaliste.
+4. La methode `smokeTest()` est vide, ce qui est assume ici.
+5. Son interet n'est pas encore de tester un comportement metier.
+6. Son interet est d'offrir une base de depart dans l'arborescence de tests.
+7. Dans un vrai projet, ce genre de test de fumee est souvent la premiere marche du filet de securite.
 
 ## Validation
 

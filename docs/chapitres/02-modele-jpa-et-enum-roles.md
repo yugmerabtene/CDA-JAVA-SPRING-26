@@ -29,6 +29,14 @@ Cette decision arrive tres tot volontairement, parce qu'elle impacte ensuite:
 - le service d'inscription
 - la conversion en authorities Spring Security
 
+### Lecture detaillee de `RoleName.java`
+
+1. Le `package` le place dans le domaine metier.
+2. `public enum RoleName` declare un type ferme de valeurs possibles.
+3. `ROLE_USER` represente le role standard des utilisateurs inscrits.
+4. `ROLE_ADMIN` existe deja dans le domaine pour stabiliser le vocabulaire metier.
+5. Le fait de centraliser ces valeurs empeche les fautes de frappe dispersees dans le code.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/model/Role.java`
 
 ```java
@@ -76,6 +84,18 @@ public class Role {
 
 Cette entite reste volontairement simple.
 Elle ne contient qu'un identifiant et un nom de role, ce qui est suffisant pour le besoin du projet.
+
+### Lecture detaillee de `Role.java`
+
+1. `@Entity` indique a JPA qu'il s'agit d'une entite persistante.
+2. `@Table(name = "roles")` la relie explicitement a la table SQL `roles`.
+3. `@Id` marque le champ identifiant primaire.
+4. `@GeneratedValue(strategy = GenerationType.IDENTITY)` s'aligne sur l'auto-increment MySQL.
+5. Le champ `id` est purement technique.
+6. `@Enumerated(EnumType.STRING)` impose le stockage du nom d'enum en texte.
+7. `@Column(nullable = false, unique = true)` reproduit les contraintes SQL.
+8. Le champ `name` est typiquement la vraie valeur metier de cette entite.
+9. Les getters et setters permettent a JPA et au reste de l'application d'acceder aux donnees.
 
 ## Fichier 3 - `src/main/java/com/cda/cdajava/model/User.java`
 
@@ -219,6 +239,26 @@ public class User {
 
 Cette entite est la plus importante du domaine.
 Elle relie la table `users`, la table d'association `user_roles`, la securite et le futur affichage du profil.
+
+### Lecture detaillee de `User.java`
+
+1. `@Entity` et `@Table(name = "users")` relient la classe a la table `users`.
+2. `id` est la cle primaire technique de l'utilisateur.
+3. `username` est obligatoire et unique.
+4. `email` est egalement obligatoire et unique.
+5. `password` est obligatoire car l'authentification en depend.
+6. `firstName` et `lastName` servent a l'identite fonctionnelle du profil.
+7. `createdAt` et `updatedAt` sont relies aux colonnes SQL correspondantes.
+8. `@ManyToMany(fetch = FetchType.EAGER)` declare la relation avec les roles.
+9. `@JoinTable(name = "user_roles", ...)` explique a JPA comment passer par la table d'association.
+10. `joinColumns = @JoinColumn(name = "user_id")` relie l'utilisateur courant.
+11. `inverseJoinColumns = @JoinColumn(name = "role_id")` relie les roles associes.
+12. `Set<Role> roles = new HashSet<>()` initialise la collection et evite les doublons.
+13. `@PrePersist` prepare les timestamps avant le premier insert.
+14. `LocalDateTime now = LocalDateTime.now()` prend l'instant courant une seule fois.
+15. `createdAt` et `updatedAt` recoivent la meme valeur au debut de vie de l'entite.
+16. `@PreUpdate` rafraichit `updatedAt` avant chaque modification.
+17. Les getters et setters rendent l'entite manipulable par JPA, les services et les mappers.
 
 ## Resultat attendu
 

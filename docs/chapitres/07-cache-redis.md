@@ -30,6 +30,12 @@ public class CacheConfig {
 Le fait que ce fichier soit minuscule est normal.
 Le gros du comportement vient des annotations de cache placees ensuite dans le service.
 
+### Lecture detaillee de `CacheConfig.java`
+
+1. `@Configuration` declare une classe de configuration Spring.
+2. `@EnableCaching` active l'infrastructure de cache Spring pour tout le projet.
+3. La classe n'a pas besoin d'autre contenu car la configuration technique principale vient de `application.yml`.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/service/impl/UserServiceImpl.java`
 
 ```java
@@ -86,6 +92,24 @@ Le controleur ne change pas, mais le service devient plus intelligent.
 
 On voit bien ici l'interet d'avoir pose les couches proprement auparavant.
 Le controleur n'a pas besoin d'etre recrit pour beneficier du cache: toute l'evolution reste localisee dans la couche service.
+
+### Lecture detaillee de `UserServiceImpl.java`
+
+1. `@Service` identifie la classe comme service metier injectable.
+2. `userDao` sert a lire et sauvegarder l'utilisateur.
+3. `userMapper` convertit l'entite `User` en `ProfileDto`.
+4. `@Cacheable(value = "profiles", key = "#username")` demande a Spring de mettre en cache le resultat de `getProfile`.
+5. Au premier appel pour un username donne, la methode s'execute vraiment.
+6. `userDao.findByUsername(username)` charge l'utilisateur depuis MySQL.
+7. En cas d'absence, une `BusinessException` est levee.
+8. `userMapper.toProfileDto(user)` transforme l'entite en DTO de sortie.
+9. Aux appels suivants avec la meme cle, Spring peut renvoyer la valeur depuis Redis.
+10. `@Transactional` protege la mise a jour du profil.
+11. `@CacheEvict(value = "profiles", key = "#username")` supprime l'entree de cache apres modification.
+12. `updateProfile` recharge l'utilisateur en base.
+13. Les champs `firstName` et `lastName` sont mis a jour.
+14. `userDao.save(user)` persiste les nouvelles valeurs.
+15. Le prochain `getProfile(username)` rechargera des donnees fraiches.
 
 ## Resultat attendu
 

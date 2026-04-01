@@ -59,6 +59,21 @@ public class SecurityConfig {
 Ce fichier fait basculer l'application dans un autre etat.
 Avant lui, les routes MVC existent. Apres lui, elles sont filtrees et certaines deviennent protegees.
 
+### Lecture detaillee de `SecurityConfig.java`
+
+1. `@Configuration` declare une classe de configuration Spring.
+2. `securityFilterChain(HttpSecurity http)` construit la chaine de filtres Spring Security.
+3. `authorizeHttpRequests(...)` declare les regles d'acces aux routes.
+4. `requestMatchers("/", "/register", "/login", "/css/**").permitAll()` ouvre explicitement les routes publiques.
+5. `anyRequest().authenticated()` protege toutes les autres routes.
+6. `formLogin(...)` active l'authentification par formulaire HTML.
+7. `loginPage("/login")` remplace la page standard de Spring Security par notre vue.
+8. `defaultSuccessUrl("/profile", true)` redirige toujours vers le profil apres connexion.
+9. `logout(...)` configure la deconnexion et son URL de retour.
+10. `http.build()` retourne la chaine de filtres finale.
+11. Le bean `PasswordEncoder` retourne un `BCryptPasswordEncoder`.
+12. Ce meme bean sera injecte dans `AuthServiceImpl` pour hasher les mots de passe.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/security/CustomUserDetailsService.java`
 
 ```java
@@ -112,6 +127,24 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 Ce service est la piece qui relie directement Spring Security au modele `User` du projet.
 Sans lui, la securite ne saurait pas comment charger un utilisateur depuis la base de donnees.
+
+### Lecture detaillee de `CustomUserDetailsService.java`
+
+1. `@Service` rend cette classe injectable par Spring.
+2. `implements UserDetailsService` annonce que la classe sait charger un utilisateur pour Spring Security.
+3. `userDao` est injecte pour lire l'utilisateur en base.
+4. `loadUserByUsername(String username)` est la methode cle appelee par Spring Security.
+5. `userDao.findByUsername(username)` recherche l'utilisateur du login.
+6. `orElseThrow(...)` leve une `UsernameNotFoundException` si le login n'existe pas.
+7. `new org.springframework.security.core.userdetails.User(...)` construit l'objet compris par Spring Security.
+8. Le premier argument est le username authentifie.
+9. Le second est le mot de passe hash stocke en base.
+10. Le troisieme est la collection d'authorities converties a partir des roles.
+11. `toAuthorities(user)` isole la conversion des roles vers le format securite.
+12. `map(Role::getName)` extrait l'enum `RoleName`.
+13. `map(Enum::name)` transforme l'enum en texte `ROLE_USER` ou `ROLE_ADMIN`.
+14. `map(SimpleGrantedAuthority::new)` cree l'objet d'autorite attendu.
+15. `collect(Collectors.toSet())` rassemble ces autorites dans un ensemble.
 
 ## Resultat attendu
 

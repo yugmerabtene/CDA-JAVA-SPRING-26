@@ -30,6 +30,19 @@ Le build se fait en deux temps:
 - une image de build pour compiler et produire le jar
 - une image d'execution plus legere pour lancer l'application
 
+### Lecture detaillee de `Dockerfile`
+
+1. `FROM maven:3.9.9-eclipse-temurin-17 AS build` ouvre une premiere etape de build.
+2. `WORKDIR /workspace` fixe le dossier de travail dans l'image.
+3. `COPY pom.xml .` copie le descripteur Maven.
+4. `COPY src ./src` copie tout le code source.
+5. `RUN mvn -q -DskipTests clean package` compile et package le projet en jar.
+6. `FROM eclipse-temurin:17-jre` ouvre ensuite une image d'execution plus legere.
+7. `WORKDIR /app` fixe le dossier de lancement.
+8. `COPY --from=build ... app.jar` recupere le jar produit lors de la premiere etape.
+9. `EXPOSE 8080` documente le port de l'application.
+10. `ENTRYPOINT [...]` lance le jar Spring Boot au demarrage du conteneur.
+
 ## Fichier 2 - `docker-compose.yml`
 
 ```yaml
@@ -83,6 +96,21 @@ Ce fichier reproduit l'infrastructure minimale du projet final:
 - MySQL pour la persistence
 - Redis pour le cache
 - Spring Boot pour l'application web
+
+### Lecture detaillee de `docker-compose.yml`
+
+1. Le service `mysql` utilise l'image `mysql:8.0.37`.
+2. `MYSQL_DATABASE`, `MYSQL_USER` et `MYSQL_PASSWORD` creent l'environnement de base du projet.
+3. `ports: "3306:3306"` expose MySQL en local.
+4. Le `healthcheck` attend que MySQL reponde correctement.
+5. Le service `redis` utilise `redis:7.4-alpine`.
+6. `ports: "6379:6379"` expose Redis en local.
+7. Son `healthcheck` utilise `redis-cli ping`.
+8. Le service `app` est construit depuis le `Dockerfile` du projet.
+9. Les variables `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `REDIS_HOST` et `REDIS_PORT` surchargent `application.yml`.
+10. `DB_URL` pointe vers `mysql` et non vers `localhost`, car les conteneurs communiquent par nom de service.
+11. `depends_on` avec `condition: service_healthy` retarde le demarrage de l'application tant que MySQL et Redis ne sont pas prets.
+12. `ports: "8080:8080"` expose l'application web sur la machine locale.
 
 ## Validation
 

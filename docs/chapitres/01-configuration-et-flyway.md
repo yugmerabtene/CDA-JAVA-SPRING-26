@@ -52,6 +52,22 @@ Points importants poses ici:
 - `flyway.enabled: true` fait des migrations SQL la source de verite
 - `cache.type: redis` prepare deja l'etape cache du projet
 
+### Lecture detaillee de `application.yml`
+
+1. Le noeud `spring.datasource` regroupe la configuration de la base relationnelle.
+2. `url` pointe vers MySQL et reste surchargeable par variable d'environnement.
+3. `username` et `password` sont egalement parametrables.
+4. `driver-class-name` impose explicitement le pilote MySQL.
+5. `spring.jpa.hibernate.ddl-auto: validate` demande a Hibernate de verifier, pas de creer.
+6. `open-in-view: false` evite de laisser le contexte de persistence ouvert jusqu'a la vue.
+7. `hibernate.format_sql: true` rend le SQL plus lisible dans les logs.
+8. `spring.flyway.enabled: true` active Flyway au demarrage.
+9. `spring.data.redis.host` et `port` declarent le serveur Redis.
+10. `spring.cache.type: redis` fait de Redis le backend de cache Spring.
+11. `spring.thymeleaf.cache: false` facilite le travail de developpement sur les templates.
+12. `server.port` permet de surcharger le port via variable d'environnement.
+13. Le niveau de log Spring Security est positionne sur `INFO` pour limiter le bruit tout en gardant de la visibilite.
+
 ## Fichier 2 - `src/main/resources/application-test.yml`
 
 ```yaml
@@ -77,6 +93,16 @@ spring:
 Ce fichier prepare le terrain pour les tests. Plus tard, Testcontainers remplacera dynamiquement ces valeurs.
 
 Autrement dit, on pose ici une configuration de reference, mais on ne fige pas encore l'infrastructure de test.
+
+### Lecture detaillee de `application-test.yml`
+
+1. Ce fichier reprend la meme idee que `application.yml`, mais pour le profil `test`.
+2. L'URL de datasource pointe vers une base de test theorique `cda_java_test`.
+3. Les identifiants `test/test` servent de base de repli.
+4. `ddl-auto: validate` est conserve pour garder la meme discipline de schema.
+5. Flyway reste actif dans les tests.
+6. Redis est aussi declare dans ce profil, car les tests d'integration couvrent egalement le cache.
+7. Plus tard, Testcontainers remplacera ces valeurs a l'execution avec de vrais conteneurs isoles.
 
 ## Fichier 3 - `src/main/resources/db/migration/V1__create_auth_tables.sql`
 
@@ -114,6 +140,22 @@ Le schema est deja pense pour l'application finale:
 L'ordre est important.
 On cree d'abord le schema, puis seulement apres on creera les classes Java qui devront lui correspondre exactement.
 
+### Lecture detaillee de `V1__create_auth_tables.sql`
+
+1. La table `roles` est creee en premier car elle est referencee ensuite.
+2. `id BIGINT PRIMARY KEY AUTO_INCREMENT` definit un identifiant technique simple.
+3. `name VARCHAR(50) NOT NULL UNIQUE` impose un nom obligatoire et unique pour chaque role.
+4. La table `users` suit ensuite.
+5. `username` est unique, ce qui permettra l'authentification par login.
+6. `email` est egalement unique.
+7. `password` stockera un hash, pas un mot de passe brut.
+8. `first_name` et `last_name` sont deja presents car le profil sera complet des le premier parcours.
+9. `created_at` garde la date de creation de l'utilisateur.
+10. `updated_at` garde la date de derniere modification.
+11. La table `user_roles` est la table d'association entre utilisateurs et roles.
+12. `PRIMARY KEY (user_id, role_id)` interdit deux fois la meme association.
+13. Les contraintes `FOREIGN KEY` garantissent que l'association ne reference que des lignes existantes.
+
 ## Fichier 4 - `src/main/resources/db/migration/V2__seed_roles.sql`
 
 ```sql
@@ -124,6 +166,13 @@ Ici, on seed uniquement `ROLE_USER` car c'est le role necessaire au parcours sta
 
 Le fait que `ROLE_ADMIN` n'apparaisse pas encore dans la migration ne bloque pas la suite du cours.
 Le code Java connait deja cette valeur, mais l'application finale construite ici repose sur le role standard utilisateur.
+
+### Lecture detaillee de `V2__seed_roles.sql`
+
+1. Cette migration ajoute une premiere donnee metier et pas seulement une structure.
+2. `ROLE_USER` est insere des maintenant car le service d'inscription en dependra.
+3. Le fait de seed en SQL garantit que le role existe avant toute creation d'utilisateur.
+4. Le service metier n'a donc pas a inventer le role: il le recharge depuis la base.
 
 ## Validation
 

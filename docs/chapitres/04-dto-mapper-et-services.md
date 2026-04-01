@@ -89,6 +89,16 @@ public class RegisterRequestDto {
 Ce premier DTO est la porte d'entree du formulaire d'inscription.
 Toutes les contraintes de forme les plus immediates sont posees ici, avant meme que la logique metier du service ne s'executent.
 
+### Lecture detaillee de `RegisterRequestDto.java`
+
+1. Le `package` place le DTO dans la couche des contrats d'echange.
+2. `@NotBlank` sur `username` interdit une valeur vide ou blanche.
+3. `@Size(min = 3, max = 100)` encadre la longueur du nom d'utilisateur.
+4. `@Email` sur `email` impose un format d'adresse coherent.
+5. `@Size(min = 8, max = 72)` sur `password` impose une borne minimale et une borne compatible avec BCrypt.
+6. `firstName` et `lastName` sont obligatoires.
+7. Les getters et setters permettent a Spring MVC et Thymeleaf de binder les champs du formulaire.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/dto/ProfileDto.java`
 
 ```java
@@ -140,6 +150,13 @@ public class ProfileDto implements Serializable {
 Ce DTO sert a sortir des donnees vers la vue et vers le cache.
 Le fait qu'il soit plus petit que l'entite `User` est volontaire: on ne transporte que les donnees utiles au profil.
 
+### Lecture detaillee de `ProfileDto.java`
+
+1. `implements Serializable` prepare cet objet a un usage simple dans le cache.
+2. `username`, `email`, `firstName` et `lastName` suffisent a l'affichage du profil.
+3. Il n'y a pas de champ `password`, ce qui evite de remonter des donnees sensibles vers la vue.
+4. Les getters et setters servent au mapper et au rendu Thymeleaf.
+
 ## Fichier 3 - `src/main/java/com/cda/cdajava/dto/UpdateProfileDto.java`
 
 ```java
@@ -175,6 +192,13 @@ public class UpdateProfileDto {
 
 La mise a jour du profil repose sur un DTO dedie.
 On n'utilise pas `RegisterRequestDto`, car les besoins fonctionnels ne sont pas les memes.
+
+### Lecture detaillee de `UpdateProfileDto.java`
+
+1. Ce DTO ne contient que `firstName` et `lastName`.
+2. Il n'y a ni `username`, ni `email`, ni `password`, car la page profil ne modifie pas ces champs.
+3. `@NotBlank` impose que le formulaire de mise a jour reste complet.
+4. La structure du DTO suit strictement le besoin de la fonctionnalite.
 
 ## Fichier 4 - `src/main/java/com/cda/cdajava/mapper/UserMapper.java`
 
@@ -215,6 +239,16 @@ public class UserMapper {
 Le mapper apparait ici pour eviter de disperser dans les services des affectations de champs purement mecaniques.
 Il garde un role simple: transformer sans prendre de decision metier complexe.
 
+### Lecture detaillee de `UserMapper.java`
+
+1. `@Component` permet a Spring d'injecter cette classe la ou elle est necessaire.
+2. `fromRegisterDto` cree une nouvelle entite `User`.
+3. `setUsername`, `setEmail`, `setFirstName` et `setLastName` copient les champs simples du DTO.
+4. Le mot de passe n'est pas affecte ici, ce qui est volontaire.
+5. Les roles ne sont pas non plus affectes ici.
+6. `toProfileDto` cree ensuite un objet de sortie adapte a la vue.
+7. Cette seconde methode copie uniquement les informations utiles au profil.
+
 ## Fichier 5 - `src/main/java/com/cda/cdajava/service/AuthService.java`
 
 ```java
@@ -229,6 +263,12 @@ public interface AuthService {
 ```
 
 Cette interface pose deja une frontiere claire entre le controleur et l'implementation metier.
+
+### Lecture detaillee de `AuthService.java`
+
+1. L'interface expose une seule methode `register`.
+2. Cette methode prend un `RegisterRequestDto`, donc un contrat d'entree de couche web.
+3. Le controleur ne depend ainsi pas directement de `AuthServiceImpl`.
 
 ## Fichier 6 - `src/main/java/com/cda/cdajava/service/UserService.java`
 
@@ -249,6 +289,12 @@ public interface UserService {
 Le profil est deja pense en deux usages distincts:
 - lecture du profil
 - mise a jour du profil
+
+### Lecture detaillee de `UserService.java`
+
+1. `getProfile(String username)` exprime clairement le besoin de lecture.
+2. `updateProfile(String username, UpdateProfileDto updateProfileDto)` exprime clairement le besoin de modification.
+3. L'interface montre que la couche service travaille deja avec des DTO et non avec l'entite brute cote presentation.
 
 ## Fichier 7 - `src/main/java/com/cda/cdajava/service/impl/AuthServiceImpl.java`
 
@@ -321,6 +367,23 @@ Il orchestre tous les elements poses avant lui:
 - mapper
 - validation metier
 - encodeur de mot de passe
+
+### Lecture detaillee de `AuthServiceImpl.java`
+
+1. `@Service` marque la classe comme service metier Spring.
+2. Les champs `userDao`, `roleDao`, `userMapper` et `passwordEncoder` sont les dependances du flux d'inscription.
+3. Le constructeur impose leur injection.
+4. `@Transactional` sur `register` garantit que l'inscription reste atomique.
+5. `userDao.existsByUsername(...)` verifie le doublon de login.
+6. En cas de doublon, une `BusinessException` lisible est levee.
+7. `userDao.existsByEmail(...)` verifie ensuite le doublon d'email.
+8. `roleDao.findByName(RoleName.ROLE_USER)` recupere le role par defaut en base.
+9. `orElseThrow(...)` transforme l'absence du role en erreur metier claire.
+10. `userMapper.fromRegisterDto(requestDto)` convertit le DTO en entite.
+11. `passwordEncoder.encode(...)` transforme le mot de passe en hash BCrypt.
+12. `user.setRoles(Set.of(role))` rattache le role standard a l'utilisateur.
+13. `userDao.save(user)` persiste l'utilisateur complet.
+14. Toute la logique metier importante du flux est concentree ici.
 
 ## Fichier 8 - `src/test/java/com/cda/cdajava/service/AuthServiceImplTest.java`
 
@@ -412,6 +475,21 @@ class AuthServiceImplTest {
 
 Le test vient a la fin du chapitre, une fois la logique en place.
 Il verrouille le comportement voulu avant que l'on ouvre la couche web au chapitre suivant.
+
+### Lecture detaillee de `AuthServiceImplTest.java`
+
+1. `@ExtendWith(MockitoExtension.class)` active Mockito dans JUnit 5.
+2. `@Mock` cree des doubles pour toutes les dependances du service.
+3. `setUp()` instancie `AuthServiceImpl` avec ces mocks.
+4. Le premier test construit un `RegisterRequestDto` complet.
+5. Il prepare ensuite un `Role` et un `User` simules.
+6. `when(...)` definit le comportement attendu des mocks.
+7. `authService.register(request)` execute la logique reelle du service.
+8. `ArgumentCaptor<User>` recupere l'utilisateur envoye au `save`.
+9. L'assertion sur le mot de passe verifie le hash.
+10. L'assertion sur les roles verifie que `ROLE_USER` est bien rattache.
+11. Le second test verifie le cas d'erreur sur username deja existant.
+12. `assertThatThrownBy(...)` verifie qu'une `BusinessException` est bien levee.
 
 ## Validation
 
