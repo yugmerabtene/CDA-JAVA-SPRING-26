@@ -30,6 +30,10 @@ public class CacheConfig {
 Le fait que ce fichier soit minuscule est normal.
 Le gros du comportement vient des annotations de cache placees ensuite dans le service.
 
+Ce chapitre montre une idee importante en Spring.
+Parfois, une petite classe de configuration active un comportement tres riche dans toute l'application.
+Ici, `@EnableCaching` suffit a ouvrir toute l'infrastructure de cache Spring.
+
 ### Lecture detaillee de `CacheConfig.java`
 
 1. `@Configuration` declare une classe de configuration Spring.
@@ -93,6 +97,11 @@ Le controleur ne change pas, mais le service devient plus intelligent.
 On voit bien ici l'interet d'avoir pose les couches proprement auparavant.
 Le controleur n'a pas besoin d'etre recrit pour beneficier du cache: toute l'evolution reste localisee dans la couche service.
 
+C'est exactement le type d'evolution qu'on recherche dans une bonne architecture.
+On ameliore le comportement applicatif sans toucher aux routes, sans toucher aux vues et sans casser le contrat du service.
+
+Le cache est donc ajoute comme une optimisation transversale, mais proprement localisee.
+
 ### Lecture detaillee de `UserServiceImpl.java`
 
 1. `@Service` identifie la classe comme service metier injectable.
@@ -111,8 +120,23 @@ Le controleur n'a pas besoin d'etre recrit pour beneficier du cache: toute l'evo
 14. `userDao.save(user)` persiste les nouvelles valeurs.
 15. Le prochain `getProfile(username)` rechargera des donnees fraiches.
 
+Il faut bien distinguer les deux comportements complementaires:
+
+1. `@Cacheable` optimise la lecture.
+2. `@CacheEvict` preserve la coherence apres ecriture.
+
+Si on ne gardait que `@Cacheable`, on pourrait finir avec un profil perime dans Redis.
+Si on ne gardait que `@CacheEvict`, on n'aurait aucune optimisation de lecture.
+
+Les deux annotations fonctionnent donc ensemble pour maintenir a la fois:
+- la performance
+- la coherence des donnees
+
 ## Resultat attendu
 
 - le profil est lu depuis MySQL au premier appel
 - les appels suivants reutilisent Redis
 - une mise a jour de profil supprime l'entree de cache correspondante
+
+Pedagogiquement, ce chapitre est tres utile parce qu'il montre qu'une application peut evoluer en qualite technique sans changer son comportement visible par l'utilisateur.
+L'ecran profil reste le meme, mais derriere lui, la lecture devient plus efficace et plus scalable.
