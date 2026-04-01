@@ -1,0 +1,23 @@
+:root {
+    --bg-a: #102a43;
+    --bg-b: #243b53;
+    --panel: rgba(255, 255, 255, 0.08);
+}
+
+body {
+    min-height: 100vh;
+    background: radial-gradient(circle at 20% 10%, #334e68, var(--bg-a) 45%),
+                linear-gradient(135deg, var(--bg-a), var(--bg-b));
+    color: #f0f4f8;
+}
+
+.hero-panel {
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #f0f4f8;
+}
+
+.card {
+    background: #f8fbff;
+    color: #102a43;
+}
