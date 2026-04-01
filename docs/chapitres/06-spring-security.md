@@ -200,5 +200,5 @@ Elle devient une application web avec session authentifiee, regles d'acces et re
 
 ## Ce Que Ce Chapitre Apporte Au Suivant
 
-Le chapitre suivant pourra optimiser une fonctionnalite deja realisticamente utilisee: la lecture du profil d'un utilisateur connecte.
+Le chapitre suivant pourra optimiser une fonctionnalite deja reellement utilisee: la lecture du profil d'un utilisateur connecte.
 Le cache prendra donc place sur une route et un service deja legitimes dans le parcours de l'application.

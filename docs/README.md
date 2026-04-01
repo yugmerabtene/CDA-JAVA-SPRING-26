@@ -30,7 +30,7 @@ Le principe de lecture est simple:
 
 La logique du cours repose sur une progression cumulative.
 Chaque chapitre ajoute une vraie brique au projet final.
-Rien n'est theorique ou decorele du depot: le cours suit le code reel du projet.
+Rien n'est theorique ou deconnecte du depot: le cours suit le code reel du projet.
 
 ## Ce Que Contiennent Les Chapitres
 

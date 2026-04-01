@@ -31,7 +31,7 @@ Ce choix est important pedagogiquement et architecturalement.
 Toutes les erreurs ne se valent pas.
 
 Dans ce projet, on distingue:
-- les erreurs metier pre visibles, comme un username deja utilise
+- les erreurs metier previsibles, comme un username deja utilise
 - les erreurs techniques non prevues, comme un probleme d'infrastructure
 
 `BusinessException` sert justement a nommer proprement la premiere categorie.
