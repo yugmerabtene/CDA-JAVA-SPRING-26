@@ -15,6 +15,9 @@ Ajouter la logique metier d'inscription en s'appuyant sur:
 4. creer `AuthServiceImpl`
 5. ecrire le test unitaire du service d'inscription
 
+L'ordre a une vraie importance pedagogique.
+On commence par definir la forme des donnees qui circulent, puis on ajoute l'outil de conversion, puis le contrat de service, puis enfin l'implementation metier reelle et son test.
+
 ## Fichier 1 - `src/main/java/com/cda/cdajava/dto/RegisterRequestDto.java`
 
 ```java
@@ -103,6 +106,10 @@ Il represente une demande d'inscription en provenance de l'interface web.
 6. `firstName` et `lastName` sont obligatoires.
 7. Les getters et setters permettent a Spring MVC et Thymeleaf de binder les champs du formulaire.
 
+Maintenant que le DTO d'entree est pose, on peut regarder le DTO de sortie.
+Le premier sert a recevoir une demande web.
+Le second servira a renvoyer des donnees propres vers la vue et vers le cache.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/dto/ProfileDto.java`
 
 ```java
@@ -165,6 +172,9 @@ Le `ProfileDto`, lui, ne garde que ce que la page profil doit afficher ou mettre
 3. Il n'y a pas de champ `password`, ce qui evite de remonter des donnees sensibles vers la vue.
 4. Les getters et setters servent au mapper et au rendu Thymeleaf.
 
+On peut alors aller un cran plus loin.
+Apres le DTO de lecture, il faut aussi un DTO de modification, car mettre a jour un profil n'est pas le meme besoin que creer un compte ou afficher un profil.
+
 ## Fichier 3 - `src/main/java/com/cda/cdajava/dto/UpdateProfileDto.java`
 
 ```java
@@ -214,6 +224,10 @@ En gardant un DTO specialise, on garde un contrat clair pour chaque ecran et cha
 2. Il n'y a ni `username`, ni `email`, ni `password`, car la page profil ne modifie pas ces champs.
 3. `@NotBlank` impose que le formulaire de mise a jour reste complet.
 4. La structure du DTO suit strictement le besoin de la fonctionnalite.
+
+Une fois les objets de transport poses, la question devient simple:
+comment passer proprement de ces DTO au domaine metier, et inversement ?
+C'est exactement le role du mapper qui arrive maintenant.
 
 ## Fichier 4 - `src/main/java/com/cda/cdajava/mapper/UserMapper.java`
 
@@ -275,6 +289,10 @@ Ces decisions appartiennent bien a la couche metier.
 6. `toProfileDto` cree ensuite un objet de sortie adapte a la vue.
 7. Cette seconde methode copie uniquement les informations utiles au profil.
 
+Le mapper ne suffit toutefois pas a lui seul.
+Il sait transformer des objets, mais il ne sait pas porter des regles metier.
+Pour cela, il faut maintenant definir les contrats de service qui seront exposes au reste de l'application.
+
 ## Fichier 5 - `src/main/java/com/cda/cdajava/service/AuthService.java`
 
 ```java
@@ -299,6 +317,9 @@ Cette abstraction est importante pour garder un code peu couple.
 1. L'interface expose une seule methode `register`.
 2. Cette methode prend un `RegisterRequestDto`, donc un contrat d'entree de couche web.
 3. Le controleur ne depend ainsi pas directement de `AuthServiceImpl`.
+
+Cette interface est volontairement tres concise.
+Le but est de nommer clairement le cas d'usage principal de cette partie du projet: l'inscription.
 
 ## Fichier 6 - `src/main/java/com/cda/cdajava/service/UserService.java`
 
@@ -328,6 +349,9 @@ En lisant seulement cette interface, on comprend que le profil n'est pas manipul
 1. `getProfile(String username)` exprime clairement le besoin de lecture.
 2. `updateProfile(String username, UpdateProfileDto updateProfileDto)` exprime clairement le besoin de modification.
 3. L'interface montre que la couche service travaille deja avec des DTO et non avec l'entite brute cote presentation.
+
+Les interfaces etant maintenant posees, on peut entrer dans le vrai coeur du chapitre: l'implementation metier de l'inscription.
+C'est a cet endroit que toutes les briques precedentes vont enfin se rejoindre.
 
 ## Fichier 7 - `src/main/java/com/cda/cdajava/service/impl/AuthServiceImpl.java`
 
@@ -439,6 +463,9 @@ Si on suit l'execution reelle de la methode, on voit que chaque bloc repond a un
 
 Cette lecture pas a pas est importante, car elle montre qu'un bon service metier ne fait pas tout en vrac.
 Il organise la logique dans un ordre fiable et comprehensible.
+
+Une fois cette logique posee, il faut immediatement la verrouiller par un test cible.
+Sinon, la couche web qui arrivera ensuite risquerait de masquer des erreurs purement metier.
 
 ## Fichier 8 - `src/test/java/com/cda/cdajava/service/AuthServiceImplTest.java`
 

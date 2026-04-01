@@ -15,6 +15,9 @@ Dans ce chapitre:
 2. creer `CustomUserDetailsService`
 3. verifier que `/profile` devient une route protegee
 
+L'ordre a ici encore beaucoup de sens.
+On commence par la regle generale de securite, puis on branche le chargement concret des utilisateurs, ce qui permet ensuite de verifier le comportement complet de l'authentification.
+
 ## Fichier 1 - `src/main/java/com/cda/cdajava/config/SecurityConfig.java`
 
 ```java
@@ -86,6 +89,10 @@ Le meme mecanisme de hash est utilise a deux moments differents:
 
 Cela veut dire que `SecurityConfig` ne sert pas seulement a proteger les routes.
 Il fournit aussi une dependance centrale a toute la strategie d'authentification du projet.
+
+Mais proteger des routes ne suffit pas.
+Il faut encore expliquer a Spring Security comment lire un utilisateur reel dans notre application.
+C'est exactement le role du composant suivant.
 
 ## Fichier 2 - `src/main/java/com/cda/cdajava/security/CustomUserDetailsService.java`
 
@@ -176,6 +183,10 @@ Cette progression est tres importante pedagogiquement, car elle montre comment u
 On voit aussi que la securite ne contourne pas l'architecture.
 Elle ne lit pas la base directement avec du SQL a part.
 Elle passe par la couche DAO et par le modele metier deja construits dans les chapitres precedents.
+
+Le chapitre devient alors beaucoup plus lisible dans son ensemble.
+`SecurityConfig` definit les regles globales.
+`CustomUserDetailsService` fournit les donnees concretes pour appliquer ces regles.
 
 ## Resultat attendu
 

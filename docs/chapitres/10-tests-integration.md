@@ -10,6 +10,9 @@ Verifier l'application finale avec de vrais services MySQL et Redis demarres a l
 2. verifier le flux reel d'inscription
 3. verifier le comportement reel du cache Redis
 
+L'ordre est tres logique.
+On commence par installer le socle technique commun des tests d'integration, puis on verifie un flux metier central, puis un comportement transverse plus technique avec le cache.
+
 ## Fichier 1 - `src/test/java/com/cda/cdajava/integration/AbstractContainerIT.java`
 
 ```java
@@ -77,6 +80,9 @@ Autrement dit:
 - `AbstractContainerIT` branche Spring sur les vrais services lances pour le test
 
 Cela permet d'executer des tests beaucoup plus proches de la realite.
+
+Une fois ce socle commun disponible, on peut s'autoriser des tests beaucoup plus demonstratifs.
+Le premier d'entre eux va rejouer un vrai parcours d'inscription de bout en bout.
 
 ## Fichier 2 - `src/test/java/com/cda/cdajava/integration/AuthFlowIT.java`
 
@@ -159,6 +165,9 @@ Ici, on verifie que cette logique fonctionne aussi quand elle traverse les vraie
 
 En d'autres termes, ce test repond a la question:
 "Quand un vrai formulaire HTTP arrive, est-ce que l'utilisateur est vraiment cree correctement dans une vraie base MySQL ?"
+
+Une fois ce flux fonctionnel valide, il reste un autre sujet important a couvrir.
+L'application ne se limite pas a la persistence relationnelle; elle embarque aussi une logique de cache Redis qu'il faut verifier en conditions reelles.
 
 ## Fichier 3 - `src/test/java/com/cda/cdajava/integration/RedisCacheIT.java`
 
@@ -254,6 +263,9 @@ Un cache mal invalide peut produire des bugs subtils:
 - l'utilisateur voit une valeur differente de celle en base
 
 Ici, le test garantit que la mise a jour supprime bien l'entree de cache devenue obsolete.
+
+Apres ces deux tests, il reste une derniere etape logique.
+Il faut montrer comment executer la verification complete du projet, pas seulement expliquer ce que chaque test fait isolement.
 
 ## Validation
 

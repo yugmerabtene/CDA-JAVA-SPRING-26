@@ -17,6 +17,9 @@ Construire toute la partie interface serveur-side:
 5. ajouter la feuille de style
 6. tester la couche MVC
 
+L'ordre est volontairement progressif.
+On pose d'abord les points d'entree Java cote MVC, puis on leur donne une vue HTML, puis on verifie que le tout se comporte correctement dans la couche web.
+
 ## Fichier 1 - `src/main/java/com/cda/cdajava/controller/HomeController.java`
 
 ```java
@@ -48,6 +51,9 @@ Parfois, son role se limite simplement a associer une route a une vue.
 2. `@GetMapping("/")` associe la methode a la route racine.
 3. La methode `home()` retourne simplement le nom de template `index`.
 4. Cette classe ne contient volontairement aucune logique metier.
+
+Ce premier controleur sert de mise en route.
+Une fois ce cas le plus simple pose, on peut passer a un controleur beaucoup plus representatif du fonctionnement complet d'un formulaire MVC: l'inscription.
 
 ## Fichier 2 - `src/main/java/com/cda/cdajava/controller/AuthController.java`
 
@@ -150,6 +156,9 @@ Elle gere tout ce qui releve vraiment de la couche web:
 - message d'erreur pour l'utilisateur
 - navigation entre les pages
 
+Une fois la logique d'inscription cote web comprise, le controleur de profil devient plus naturel a lire.
+Il repose sur les memes principes MVC, mais applique a une page authentifiee qui combine affichage et mise a jour.
+
 ## Fichier 3 - `src/main/java/com/cda/cdajava/controller/ProfileController.java`
 
 ```java
@@ -238,6 +247,9 @@ Le point pedagogique important ici est la separation entre lecture et ecriture d
 La page affiche un `ProfileDto`, mais le formulaire utilise un `UpdateProfileDto`.
 Cela permet de garder un contrat clair pour chaque usage, meme quand tout apparait dans le meme ecran.
 
+Avec les controleurs en place, il faut maintenant leur donner des vues correspondantes.
+On passe donc de la couche Java web a la couche template HTML server-side avec Thymeleaf.
+
 ## Fichier 4 - `src/main/resources/templates/index.html`
 
 ```html
@@ -282,6 +294,9 @@ L'objectif n'est pas d'ajouter une complexite frontend inutile, mais d'avoir une
 
 On voit deja ici l'interet de Thymeleaf, meme sur une page simple.
 Les URLs ne sont pas ecrites en dur n'importe comment: elles passent par `@{...}`, ce qui garde la vue coherente avec le routage Spring MVC.
+
+La page d'accueil ouvre le parcours, mais ce sont surtout les vues de formulaire qui montrent toute la puissance du couple Spring MVC + Thymeleaf.
+On passe donc maintenant a l'ecran d'inscription.
 
 ## Fichier 5 - `src/main/resources/templates/auth/register.html`
 
@@ -367,6 +382,9 @@ Quand l'utilisateur soumet ce formulaire, on peut suivre le chemin complet:
 
 Ce chapitre est central parce qu'il montre ce flux de facon tres concrete.
 
+Une fois l'inscription posee, la page de connexion prend tout son sens.
+Elle reste plus simple, car une grande partie du comportement sera fournie par Spring Security au chapitre suivant.
+
 ## Fichier 6 - `src/main/resources/templates/auth/login.html`
 
 ```html
@@ -425,6 +443,8 @@ Il doit simplement fournir le bon formulaire avec les bons noms de champs pour S
 
 Autrement dit, cette vue prepare deja le terrain du chapitre suivant.
 Elle existe avant meme que toute la mecanique Spring Security soit completement branchee.
+
+Il reste alors a observer la page profil, qui est la page la plus representative d'une application deja utilisable par un utilisateur final.
 
 ## Fichier 7 - `src/main/resources/templates/profile/profile.html`
 
@@ -504,6 +524,9 @@ Cette page est pedagogiquement importante, car elle reunit plusieurs briques du 
 En lisant cette page, on comprend deja presque toute l'application finale cote utilisateur.
 Le visiteur peut s'inscrire, se connecter, consulter son profil, modifier certaines informations et se deconnecter.
 
+Quand toutes les vues principales existent, une petite couche de style suffit a rendre l'ensemble coherent visuellement.
+On passe donc maintenant au CSS d'accompagnement.
+
 ## Fichier 8 - `src/main/resources/static/css/app.css`
 
 ```css
@@ -547,6 +570,9 @@ On garde donc une approche pragmatique: un rendu agreable, sans perdre le centre
 5. `.card` redonne un fond clair aux cartes de formulaire et de profil.
 
 Ce fichier montre aussi qu'une application pedagogique n'a pas besoin d'un design ultra complexe pour etre propre et presentable.
+
+Le dernier bloc du chapitre ferme la boucle de la couche web.
+Il montre comment tester le comportement MVC sans lancer toute l'infrastructure complete du projet.
 
 ## Fichier 9 - `src/test/java/com/cda/cdajava/controller/AuthControllerWebMvcTest.java`
 
