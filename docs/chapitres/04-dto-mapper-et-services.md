@@ -575,3 +575,8 @@ Cela permet de se concentrer sur cette brique precise avant d'empiler les suivan
 - l'inscription fonctionne cote metier
 - les doublons sont bloques
 - le mot de passe est hash avant sauvegarde
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant pourra s'appuyer sur une vraie logique metier stable.
+Les controleurs et les vues n'auront pas a inventer le comportement d'inscription: ils ne feront que l'utiliser proprement.

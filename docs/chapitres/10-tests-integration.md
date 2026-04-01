@@ -287,3 +287,8 @@ On passe ainsi d'un projet en construction progressive a un projet valide de fac
 Quand ce chapitre est termine, le cours boucle la demonstration complete.
 On ne s'arrete pas a "le code existe" ou "la page s'affiche".
 On prouve aussi que l'application finale fonctionne reellement dans une configuration proche du monde reel.
+
+## Ce Que Ce Chapitre Apporte A L'Ensemble Du Projet
+
+Ce dernier chapitre ferme la boucle.
+Il transforme tout le parcours precedent en application verifiee, testee et demonstrable, aussi bien pedagogiquement que techniquement.

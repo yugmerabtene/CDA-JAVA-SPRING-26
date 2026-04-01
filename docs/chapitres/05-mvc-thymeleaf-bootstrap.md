@@ -625,3 +625,8 @@ Avant de continuer vers la securite complete, on s'assure que le chemin HTTP du 
 - le parcours web est en place
 - l'utilisateur peut s'inscrire, se connecter et ouvrir son profil
 - l'etape suivante pourra maintenant proteger ces routes avec Spring Security
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant ne devra plus construire les pages.
+Il devra seulement controler qui peut y acceder et comment l'authentification s'appuie sur les utilisateurs deja geres par l'application.

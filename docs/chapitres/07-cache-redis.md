@@ -140,3 +140,8 @@ Les deux annotations fonctionnent donc ensemble pour maintenir a la fois:
 
 Pedagogiquement, ce chapitre est tres utile parce qu'il montre qu'une application peut evoluer en qualite technique sans changer son comportement visible par l'utilisateur.
 L'ecran profil reste le meme, mais derriere lui, la lecture devient plus efficace et plus scalable.
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant va se concentrer sur les cas d'erreur metier.
+Comme la lecture et la mise a jour du profil sont maintenant stabilisees, on peut mieux expliquer comment remonter proprement les situations fonctionnelles problematiques vers l'interface.

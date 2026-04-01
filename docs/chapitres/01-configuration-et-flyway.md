@@ -52,6 +52,10 @@ Points importants poses ici:
 - `flyway.enabled: true` fait des migrations SQL la source de verite
 - `cache.type: redis` prepare deja l'etape cache du projet
 
+Ce chapitre pose donc une discipline technique tres importante pour tout le reste du projet.
+La base ne sera pas creee "en automatique" par des effets de bord.
+Elle sera versionnee, lisible et reproductible, ce qui est beaucoup plus formateur.
+
 ### Lecture detaillee de `application.yml`
 
 1. Le noeud `spring.datasource` regroupe la configuration de la base relationnelle.
@@ -140,6 +144,9 @@ Le schema est deja pense pour l'application finale:
 L'ordre est important.
 On cree d'abord le schema, puis seulement apres on creera les classes Java qui devront lui correspondre exactement.
 
+Cette facon de faire apprend aussi une vraie logique de projet.
+Avant de coder les entites JPA, on clarifie d'abord le modele de donnees que l'on veut porter en base.
+
 ### Lecture detaillee de `V1__create_auth_tables.sql`
 
 1. La table `roles` est creee en premier car elle est referencee ensuite.
@@ -184,3 +191,8 @@ Mais a ce stade, la configuration centrale et les migrations sont posees.
 - la configuration Spring est en place
 - le schema est versionne
 - la base attend deja les futures entites `User` et `Role`
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant peut maintenant creer les entites JPA avec un objectif clair.
+Il ne code pas "dans le vide": il s'aligne sur un schema SQL deja pose et deja pense pour l'application finale.

@@ -29,6 +29,9 @@ Cette decision arrive tres tot volontairement, parce qu'elle impacte ensuite:
 - le service d'inscription
 - la conversion en authorities Spring Security
 
+Ce chapitre est donc plus qu'un simple chapitre "JPA".
+Il fixe le vocabulaire metier du projet et prepare deja plusieurs couches qui arriveront apres lui.
+
 ### Lecture detaillee de `RoleName.java`
 
 1. Le `package` le place dans le domaine metier.
@@ -240,6 +243,9 @@ public class User {
 Cette entite est la plus importante du domaine.
 Elle relie la table `users`, la table d'association `user_roles`, la securite et le futur affichage du profil.
 
+On voit ici apparaitre le veritable coeur metier du projet.
+Beaucoup de chapitres suivants vont tourner autour de cette entite `User`, soit pour la creer, soit pour l'afficher, soit pour l'authentifier, soit pour la mettre en cache.
+
 ### Lecture detaillee de `User.java`
 
 1. `@Entity` et `@Table(name = "users")` relient la classe a la table `users`.
@@ -265,3 +271,8 @@ Elle relie la table `users`, la table d'association `user_roles`, la securite et
 - le domaine Java correspond au schema SQL
 - `Role.name` s'appuie sur l'enum `RoleName`
 - `User` porte deja la relation avec les roles
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant peut maintenant brancher l'acces aux donnees.
+Les repositories et DAO auront des entites claires a manipuler, deja alignees sur le schema SQL et sur le vocabulaire metier du projet.

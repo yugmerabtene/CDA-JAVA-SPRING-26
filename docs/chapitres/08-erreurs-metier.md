@@ -127,3 +127,8 @@ Elle n'affiche plus seulement des pages de succes; elle gere aussi proprement de
 
 - les erreurs metier peuvent etre remontees proprement a l'interface
 - l'application ne retombe pas sur une erreur HTML technique brute pour ces cas attendus
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant peut maintenant emballer toute l'application dans une stack Docker sans perdre en lisibilite fonctionnelle.
+Les comportements metier principaux, y compris les erreurs attendues, sont deja stabilises avant la mise en conteneurs.

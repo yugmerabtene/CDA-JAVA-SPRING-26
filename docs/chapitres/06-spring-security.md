@@ -186,3 +186,8 @@ Elle passe par la couche DAO et par le modele metier deja construits dans les ch
 Quand ce chapitre est termine, l'application change de niveau.
 Elle n'est plus seulement une application web qui affiche des pages et enregistre des utilisateurs.
 Elle devient une application web avec session authentifiee, regles d'acces et reutilisation des roles du domaine.
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant pourra optimiser une fonctionnalite deja realisticamente utilisee: la lecture du profil d'un utilisateur connecte.
+Le cache prendra donc place sur une route et un service deja legitimes dans le parcours de l'application.

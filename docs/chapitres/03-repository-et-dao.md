@@ -92,6 +92,10 @@ public interface UserDao {
 Cette interface correspond deja exactement aux besoins des services qui vont suivre.
 On ne cree pas un DAO generique trop large: on expose seulement ce que le projet utilise vraiment.
 
+Ce point est pedagogiquement important.
+On ne construit pas une architecture "pour faire joli" ou pour ajouter des couches artificielles.
+Chaque methode exposee ici correspond a un besoin reel des services a venir.
+
 ### Lecture detaillee de `UserDao.java`
 
 1. `findByUsername` est la lecture principale du projet.
@@ -212,6 +216,9 @@ public class RoleDaoImpl implements RoleDao {
 Avec cette derniere piece, l'acces aux donnees est pret.
 Le chapitre suivant peut maintenant se concentrer sur le vrai comportement metier: inscription, hash du mot de passe, affectation du role et profil utilisateur.
 
+On arrive donc a la fin de la preparation technique de la persistence.
+La suite va enfin montrer comment ces briques servent un vrai cas d'usage utilisateur.
+
 ### Lecture detaillee de `RoleDaoImpl.java`
 
 1. `@Repository` place cette classe dans la couche persistence.
@@ -224,3 +231,8 @@ Le chapitre suivant peut maintenant se concentrer sur le vrai comportement metie
 - les services disposent maintenant d'un acces propre aux donnees
 - la base est accessible a travers `Repository` puis `DAO`
 - le chapitre suivant peut enfin poser la logique metier d'inscription
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant pourra se concentrer sur la logique metier pure.
+Les services n'auront plus besoin de se preocuper de la facon dont on accede a la base, car cette responsabilite est maintenant deja structuree.

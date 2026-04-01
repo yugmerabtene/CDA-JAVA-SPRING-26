@@ -158,3 +158,8 @@ On peut tres vite verifier si la stack complete est operationnelle sans devoir t
 
 Quand ce chapitre est termine, le projet n'est plus seulement un ensemble de fichiers sources.
 Il devient une application complete, demarrable de facon reproductible avec son infrastructure minimale.
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant pourra verifier l'application dans un contexte proche du reel.
+La logique de conteneurisation et l'infrastructure du projet sont deja clarifiees, ce qui rend les tests d'integration beaucoup plus naturels a comprendre.

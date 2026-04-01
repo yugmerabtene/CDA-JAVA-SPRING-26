@@ -166,6 +166,10 @@ Pourquoi ce fichier est pose des le depart:
 - il nous evite de refaire le build a chaque chapitre
 - il garantit que les chapitres suivants sont alignes sur le vrai depot
 
+Ce choix peut sembler ambitieux des le debut, mais il simplifie en realite tout le parcours.
+Au lieu de faire evoluer en permanence le build lui-meme, on fait surtout evoluer le code de l'application.
+Le socle technique est ainsi pose une bonne fois pour toutes.
+
 ### Lecture detaillee de `pom.xml`
 
 1. `modelVersion` indique a Maven le modele de descripteur utilise.
@@ -212,6 +216,9 @@ Cette classe suffit pour demarrer l'application Spring Boot.
 
 A ce stade, elle ne porte encore aucune logique applicative.
 Son seul role est d'offrir un point d'entree stable au projet.
+
+Dans un cours progressif, cette classe joue un role presque symbolique.
+Elle marque le moment ou le projet cesse d'etre un simple dossier de fichiers pour devenir une application Java executable.
 
 ### Lecture detaillee de `CdaJavaApplication.java`
 
@@ -275,3 +282,8 @@ Elle permet de verifier le socle sans dependre d'une installation Maven locale.
 - le projet compile
 - le socle Spring Boot est pret
 - on peut attaquer la configuration applicative au chapitre suivant
+
+## Ce Que Ce Chapitre Apporte Au Suivant
+
+Le chapitre suivant ne part plus d'un projet vide.
+Il part d'une application Spring Boot saine, compilable et suffisamment stable pour accueillir la configuration MySQL, Redis et Flyway.
