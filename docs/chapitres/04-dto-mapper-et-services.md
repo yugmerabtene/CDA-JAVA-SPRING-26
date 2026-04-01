@@ -501,6 +501,9 @@ docker run --rm \
   mvn -Dtest=AuthServiceImplTest test
 ```
 
+Cette commande execute uniquement le test unitaire du service d'inscription.
+Elle permet de valider la logique metier avant de passer a la couche web complete.
+
 ## Resultat attendu
 
 - l'inscription fonctionne cote metier

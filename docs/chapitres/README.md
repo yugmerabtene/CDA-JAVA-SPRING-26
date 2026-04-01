@@ -10,7 +10,7 @@ Le principe retenu est simple:
 
 Ordre de lecture:
 
-1. `../SYLLABUS.md`
+1. `../README.md`
 2. `00-prerequis-et-socle.md`
 3. `01-configuration-et-flyway.md`
 4. `02-modele-jpa-et-enum-roles.md`

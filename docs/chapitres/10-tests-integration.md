@@ -215,6 +215,9 @@ docker run --rm \
   mvn clean test
 ```
 
+Cette commande execute tous les tests dans un conteneur Maven.
+Le partage du socket Docker est necessaire pour que Testcontainers puisse lancer MySQL et Redis pendant les tests d'integration.
+
 ## Resultat attendu
 
 - les tests unitaires passent

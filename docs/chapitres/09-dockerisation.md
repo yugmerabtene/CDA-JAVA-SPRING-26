@@ -119,6 +119,9 @@ docker compose up -d --build
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8080
 ```
 
+La premiere commande construit l'image puis demarre MySQL, Redis et l'application.
+La seconde verifie rapidement que le serveur web repond bien sur le port 8080.
+
 ## Resultat attendu
 
 - MySQL tourne

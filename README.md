@@ -46,11 +46,9 @@ Services exposes:
 
 Documents a lire dans cet ordre:
 
-1. `docs/SYLLABUS.md`
+1. `docs/README.md`
 2. `docs/chapitres/README.md`
-3. `docs/COURS_CHRONOLOGIQUE.md`
 
 Role de chaque document:
-- `docs/SYLLABUS.md`: point d'entree du parcours et vue d'ensemble du projet
+- `docs/README.md`: syllabus public et point d'entree du parcours
 - `docs/chapitres/README.md`: cours decoupe en fichiers par chapitre
-- `docs/COURS_CHRONOLOGIQUE.md`: ordre de construction brique par brique

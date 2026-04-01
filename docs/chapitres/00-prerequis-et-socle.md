@@ -267,6 +267,9 @@ docker run --rm \
   mvn -q -DskipTests compile
 ```
 
+Cette commande compile le projet dans un conteneur Maven standard.
+Elle permet de verifier le socle sans dependre d'une installation Maven locale.
+
 ## Resultat attendu
 
 - le projet compile
