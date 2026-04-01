@@ -21,6 +21,9 @@ On met en place le socle technique qui permettra d'empiler les briques suivantes
 - Docker
 - de preference Maven 3.9+, mais le cours peut aussi etre suivi uniquement avec le conteneur Maven
 
+Cette liste est volontairement courte.
+Le but du chapitre n'est pas d'ouvrir un chantier d'installation complexe, mais de verifier qu'on dispose bien du minimum pour suivre tout le reste du parcours.
+
 Commandes utiles:
 
 ```bash
@@ -28,6 +31,9 @@ java -version
 docker version
 docker compose version
 ```
+
+Ces commandes ne modifient rien dans le projet.
+Elles servent uniquement a confirmer que l'environnement de travail est pret avant de commencer a construire l'application.
 
 ## Fichier 1 - `pom.xml`
 
@@ -195,6 +201,10 @@ Le socle technique est ainsi pose une bonne fois pour toutes.
 21. Le plugin Surefire est configure pour inclure les tests `*Test.java` et `*IT.java`.
 22. Ce dernier point est essentiel pour que les tests unitaires et les tests d'integration soient executes dans le meme projet.
 
+Une fois ce fichier compris, le reste du chapitre devient plus facile a lire.
+Le projet a maintenant une definition de build claire.
+Il faut donc lui donner un vrai point d'entree applicatif.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/CdaJavaApplication.java`
 
 ```java
@@ -231,6 +241,10 @@ Elle marque le moment ou le projet cesse d'etre un simple dossier de fichiers po
 7. `SpringApplication.run(...)` lance l'application complete.
 8. A partir de cet appel, Spring charge les configurations, les composants et le serveur web embarque.
 
+Avec cette classe, l'application devient executable.
+Mais pour construire un projet serieusement, on veut aussi une toute premiere base de verification.
+C'est le role du test de fumee qui suit.
+
 ## Fichier 3 - `src/test/java/com/cda/cdajava/CdaJavaApplicationTests.java`
 
 ```java
@@ -261,6 +275,9 @@ Dans un vrai parcours de construction, ce premier test sert a repondre a une que
 5. Son interet n'est pas encore de tester un comportement metier.
 6. Son interet est d'offrir une base de depart dans l'arborescence de tests.
 7. Dans un vrai projet, ce genre de test de fumee est souvent la premiere marche du filet de securite.
+
+Le chapitre se ferme donc avec une idee tres simple mais fondamentale.
+Avant de parler base de donnees, securite, cache ou dockerisation, on s'assure d'abord que le socle du projet existe vraiment et qu'il peut etre verifie.
 
 ## Validation
 

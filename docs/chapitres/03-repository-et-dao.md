@@ -11,6 +11,9 @@ Brancher le domaine sur Spring Data JPA et poser la couche DAO qui sera utilisee
 3. creer les implementations DAO
 4. preparer les services pour le chapitre suivant
 
+Ce chapitre suit une logique de profondeur technique.
+On commence au plus pres de Spring Data, puis on remonte vers une couche plus metier qui sera ensuite consommee par les services.
+
 ## Fichier 1 - `src/main/java/com/cda/cdajava/repository/UserRepository.java`
 
 ```java
@@ -42,6 +45,9 @@ Avec ce repository, Spring Data genere directement les operations necessaires sa
 5. `existsByUsername` servira a bloquer les doublons a l'inscription.
 6. `existsByEmail` sert au meme objectif sur l'email.
 
+Le repository montre ce que Spring Data sait faire tres simplement.
+Mais pour garder une architecture plus lisible dans le reste du projet, on va maintenant encapsuler cet acces dans une couche DAO.
+
 ## Fichier 2 - `src/main/java/com/cda/cdajava/repository/RoleRepository.java`
 
 ```java
@@ -67,6 +73,10 @@ On reste coherent avec l'enum metier au lieu de repasser sur une chaine de carac
 1. `JpaRepository<Role, Long>` apporte les operations de base sur l'entite `Role`.
 2. `findByName(RoleName name)` repose sur l'enum metier.
 3. Le retour `Optional<Role>` force l'appelant a traiter explicitement le cas d'absence.
+
+Les repositories sont maintenant poses.
+Ils savent parler a la base, mais ils restent des outils assez proches de Spring Data.
+Les DAO vont maintenant offrir une facade de persistence plus adaptee au reste de l'application.
 
 ## Fichier 3 - `src/main/java/com/cda/cdajava/dao/UserDao.java`
 
@@ -103,6 +113,9 @@ Chaque methode exposee ici correspond a un besoin reel des services a venir.
 3. `save` permet d'enregistrer aussi bien un nouvel utilisateur qu'une mise a jour.
 4. L'interface formalise ce dont les services ont besoin, sans exposer tout le repository.
 
+Cette interface montre bien l'idee de filtrage de responsabilite.
+On n'expose pas tout ce que JPA sait faire, seulement ce que la logique du projet utilisera vraiment.
+
 ## Fichier 4 - `src/main/java/com/cda/cdajava/dao/RoleDao.java`
 
 ```java
@@ -127,6 +140,9 @@ Dans l'application finale, son besoin principal est de retrouver le role par def
 1. L'interface ne contient qu'une methode, ce qui est volontaire.
 2. `findByName(RoleName name)` correspond exactement au besoin du service d'inscription.
 3. Comme pour le repository, le retour est un `Optional<Role>`.
+
+Il reste maintenant a relier ces interfaces DAO aux repositories concrets.
+Les implementations qui suivent sont simples, mais elles sont importantes pour faire vivre l'architecture choisie.
 
 ## Fichier 5 - `src/main/java/com/cda/cdajava/dao/impl/UserDaoImpl.java`
 
@@ -184,6 +200,9 @@ Cette couche devient utile pedagogiquement, car elle permet au service de depend
 6. `save` centralise l'enregistrement via Spring Data.
 7. La classe ne contient pas de logique metier, ce qui est un bon signe.
 
+Cette implementation peut sembler tres fine, mais c'est justement ce qui est interessant.
+Elle prouve que la couche DAO n'est pas faite pour dupliquer de la logique, mais pour structurer l'acces aux donnees.
+
 ## Fichier 6 - `src/main/java/com/cda/cdajava/dao/impl/RoleDaoImpl.java`
 
 ```java
@@ -226,6 +245,9 @@ La suite va enfin montrer comment ces briques servent un vrai cas d'usage utilis
 3. Le constructeur realise l'injection par constructeur.
 4. `findByName` delegue a `roleRepository.findByName(name)`.
 5. Comme pour `UserDaoImpl`, l'interet principal est structurel: preparer une couche DAO claire pour le service.
+
+Avec cette derniere classe, toute la chaine d'acces aux donnees est maintenant en place.
+Le chapitre suivant pourra enfin s'interesser a la vraie logique metier, en reutilisant cette structure sans avoir a se soucier du detail de la persistence.
 ## Resultat attendu
 
 - les services disposent maintenant d'un acces propre aux donnees

@@ -12,6 +12,9 @@ Ajouter la configuration applicative, declarer MySQL et Redis, puis versionner l
 4. creer la migration de seed des roles
 5. verifier que la structure SQL est compatible avec le modele vise
 
+Ici encore, l'ordre est important.
+On commence par dire a l'application comment fonctionner, puis on decrit la structure SQL qu'elle attend, puis on ajoute les donnees minimales necessaires au metier.
+
 ## Fichier 1 - `src/main/resources/application.yml`
 
 ```yaml
@@ -72,6 +75,9 @@ Elle sera versionnee, lisible et reproductible, ce qui est beaucoup plus formate
 12. `server.port` permet de surcharger le port via variable d'environnement.
 13. Le niveau de log Spring Security est positionne sur `INFO` pour limiter le bruit tout en gardant de la visibilite.
 
+Une fois la configuration principale posee, on pense tout de suite a la suite logique du projet: les tests.
+Il faut donc un profil dedie qui prepare un contexte de test clair, meme s'il sera ensuite surcharge dynamiquement.
+
 ## Fichier 2 - `src/main/resources/application-test.yml`
 
 ```yaml
@@ -107,6 +113,9 @@ Autrement dit, on pose ici une configuration de reference, mais on ne fige pas e
 5. Flyway reste actif dans les tests.
 6. Redis est aussi declare dans ce profil, car les tests d'integration couvrent egalement le cache.
 7. Plus tard, Testcontainers remplacera ces valeurs a l'execution avec de vrais conteneurs isoles.
+
+Apres la configuration applicative, il faut definir ce que l'application attend concretement en base.
+On passe donc maintenant du YAML au SQL, c'est-a-dire des parametres de demarrage a la structure reelle des donnees.
 
 ## Fichier 3 - `src/main/resources/db/migration/V1__create_auth_tables.sql`
 
@@ -163,6 +172,10 @@ Avant de coder les entites JPA, on clarifie d'abord le modele de donnees que l'o
 12. `PRIMARY KEY (user_id, role_id)` interdit deux fois la meme association.
 13. Les contraintes `FOREIGN KEY` garantissent que l'association ne reference que des lignes existantes.
 
+Le schema seul ne suffit cependant pas encore a faire vivre le metier.
+Le service d'inscription qui arrivera plus tard aura besoin d'au moins un role deja present en base.
+On ajoute donc maintenant une premiere donnee metier de reference.
+
 ## Fichier 4 - `src/main/resources/db/migration/V2__seed_roles.sql`
 
 ```sql
@@ -180,6 +193,9 @@ Le code Java connait deja cette valeur, mais l'application finale construite ici
 2. `ROLE_USER` est insere des maintenant car le service d'inscription en dependra.
 3. Le fait de seed en SQL garantit que le role existe avant toute creation d'utilisateur.
 4. Le service metier n'a donc pas a inventer le role: il le recharge depuis la base.
+
+Avec cette derniere migration, le chapitre pose une base extremement solide.
+L'application sait comment se connecter a ses services, et la base dispose deja de sa structure et de sa donnee metier initiale.
 
 ## Validation
 

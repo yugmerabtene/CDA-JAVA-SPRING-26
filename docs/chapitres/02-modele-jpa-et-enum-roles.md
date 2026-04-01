@@ -11,6 +11,9 @@ Creer les entites qui correspondent exactement au schema SQL pose au chapitre pr
 3. creer l'entite `User`
 4. verifier que le mapping colle au schema Flyway
 
+Cet ordre n'est pas arbitraire.
+On commence par le vocabulaire le plus simple, puis on passe a l'entite la plus petite, puis a l'entite centrale du projet.
+
 ## Fichier 1 - `src/main/java/com/cda/cdajava/model/RoleName.java`
 
 ```java
@@ -39,6 +42,9 @@ Il fixe le vocabulaire metier du projet et prepare deja plusieurs couches qui ar
 3. `ROLE_USER` represente le role standard des utilisateurs inscrits.
 4. `ROLE_ADMIN` existe deja dans le domaine pour stabiliser le vocabulaire metier.
 5. Le fait de centraliser ces valeurs empeche les fautes de frappe dispersees dans le code.
+
+Une fois l'enum pose, on peut lui donner un support persistant concret.
+La classe `Role` sera justement la traduction JPA de cette notion de role metier.
 
 ## Fichier 2 - `src/main/java/com/cda/cdajava/model/Role.java`
 
@@ -99,6 +105,9 @@ Elle ne contient qu'un identifiant et un nom de role, ce qui est suffisant pour 
 7. `@Column(nullable = false, unique = true)` reproduit les contraintes SQL.
 8. Le champ `name` est typiquement la vraie valeur metier de cette entite.
 9. Les getters et setters permettent a JPA et au reste de l'application d'acceder aux donnees.
+
+Le role etant pose, il manque maintenant l'entite autour de laquelle va tourner l'application: l'utilisateur.
+C'est elle qui fera le lien entre inscription, profil, securite et cache.
 
 ## Fichier 3 - `src/main/java/com/cda/cdajava/model/User.java`
 
@@ -265,6 +274,9 @@ Beaucoup de chapitres suivants vont tourner autour de cette entite `User`, soit 
 15. `createdAt` et `updatedAt` recoivent la meme valeur au debut de vie de l'entite.
 16. `@PreUpdate` rafraichit `updatedAt` avant chaque modification.
 17. Les getters et setters rendent l'entite manipulable par JPA, les services et les mappers.
+
+Quand ce fichier est compris, on voit mieux la force du chapitre.
+Le projet possede maintenant un domaine Java qui colle a la base SQL et qui porte deja les besoins des chapitres a venir.
 
 ## Resultat attendu
 
