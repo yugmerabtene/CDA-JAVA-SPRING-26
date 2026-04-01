@@ -30,6 +30,10 @@ Le build se fait en deux temps:
 - une image de build pour compiler et produire le jar
 - une image d'execution plus legere pour lancer l'application
 
+Ce fichier est important parce qu'il traduit le projet Java en unite deployable.
+Jusqu'ici, on avait surtout pense en termes de code source et d'execution locale.
+Avec le `Dockerfile`, on commence a penser en termes d'artefact livrable.
+
 ### Lecture detaillee de `Dockerfile`
 
 1. `FROM maven:3.9.9-eclipse-temurin-17 AS build` ouvre une premiere etape de build.
@@ -42,6 +46,13 @@ Le build se fait en deux temps:
 8. `COPY --from=build ... app.jar` recupere le jar produit lors de la premiere etape.
 9. `EXPOSE 8080` documente le port de l'application.
 10. `ENTRYPOINT [...]` lance le jar Spring Boot au demarrage du conteneur.
+
+Le choix d'un build multi-stage est tres formateur.
+Il montre qu'on peut separer:
+- l'environnement de build, plus lourd
+- l'environnement d'execution, plus simple et plus leger
+
+Cela produit generalement une image plus propre pour le runtime.
 
 ## Fichier 2 - `docker-compose.yml`
 
@@ -97,6 +108,10 @@ Ce fichier reproduit l'infrastructure minimale du projet final:
 - Redis pour le cache
 - Spring Boot pour l'application web
 
+Il faut bien comprendre ce que `docker-compose.yml` apporte au projet.
+Il ne remplace pas la configuration Spring.
+Il orchestre les services qui permettront a cette configuration Spring de fonctionner dans un environnement complet.
+
 ### Lecture detaillee de `docker-compose.yml`
 
 1. Le service `mysql` utilise l'image `mysql:8.0.37`.
@@ -112,6 +127,15 @@ Ce fichier reproduit l'infrastructure minimale du projet final:
 11. `depends_on` avec `condition: service_healthy` retarde le demarrage de l'application tant que MySQL et Redis ne sont pas prets.
 12. `ports: "8080:8080"` expose l'application web sur la machine locale.
 
+Ce chapitre est souvent un moment charniere dans un cours.
+On passe d'une application qui fonctionne sur une machine de dev a une application qui sait aussi s'executer dans une stack reproductible.
+
+Cette reproductibilite est tres importante pour:
+- les demonstrations
+- la correction des exercices
+- les tests sur d'autres machines
+- la livraison future du projet
+
 ## Validation
 
 ```bash
@@ -122,9 +146,15 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080
 La premiere commande construit l'image puis demarre MySQL, Redis et l'application.
 La seconde verifie rapidement que le serveur web repond bien sur le port 8080.
 
+Le fait d'avoir une validation courte et concrete est utile dans un cours.
+On peut tres vite verifier si la stack complete est operationnelle sans devoir tout tester manuellement a ce stade.
+
 ## Resultat attendu
 
 - MySQL tourne
 - Redis tourne
 - l'application Spring Boot tourne
 - `http://localhost:8080` retourne `200`
+
+Quand ce chapitre est termine, le projet n'est plus seulement un ensemble de fichiers sources.
+Il devient une application complete, demarrable de facon reproductible avec son infrastructure minimale.
