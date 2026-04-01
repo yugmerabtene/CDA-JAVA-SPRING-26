@@ -89,6 +89,10 @@ public class RegisterRequestDto {
 Ce premier DTO est la porte d'entree du formulaire d'inscription.
 Toutes les contraintes de forme les plus immediates sont posees ici, avant meme que la logique metier du service ne s'executent.
 
+Concretement, ce fichier sert a representer exactement ce que l'utilisateur saisit dans le formulaire d'inscription.
+Il ne represente pas encore un utilisateur persiste en base.
+Il represente une demande d'inscription en provenance de l'interface web.
+
 ### Lecture detaillee de `RegisterRequestDto.java`
 
 1. Le `package` place le DTO dans la couche des contrats d'echange.
@@ -150,6 +154,10 @@ public class ProfileDto implements Serializable {
 Ce DTO sert a sortir des donnees vers la vue et vers le cache.
 Le fait qu'il soit plus petit que l'entite `User` est volontaire: on ne transporte que les donnees utiles au profil.
 
+Le point important ici est la separation entre donnees internes et donnees exposees.
+L'entite `User` contient une structure de persistence, des roles et un mot de passe hash.
+Le `ProfileDto`, lui, ne garde que ce que la page profil doit afficher ou mettre en cache.
+
 ### Lecture detaillee de `ProfileDto.java`
 
 1. `implements Serializable` prepare cet objet a un usage simple dans le cache.
@@ -192,6 +200,13 @@ public class UpdateProfileDto {
 
 La mise a jour du profil repose sur un DTO dedie.
 On n'utilise pas `RegisterRequestDto`, car les besoins fonctionnels ne sont pas les memes.
+
+Cette separation est tres importante dans un vrai projet.
+Si on reutilisait le DTO d'inscription, on melangerait des usages differents:
+- creer un compte
+- modifier un profil existant
+
+En gardant un DTO specialise, on garde un contrat clair pour chaque ecran et chaque action.
 
 ### Lecture detaillee de `UpdateProfileDto.java`
 
@@ -239,6 +254,17 @@ public class UserMapper {
 Le mapper apparait ici pour eviter de disperser dans les services des affectations de champs purement mecaniques.
 Il garde un role simple: transformer sans prendre de decision metier complexe.
 
+Dans beaucoup de projets debutants, on voit souvent le service construire manuellement les DTO et les entites partout.
+Cela finit par dupliquer les memes affectations dans plusieurs classes.
+Le mapper centralise ici ce travail simple et repetitif.
+
+Il faut aussi noter ce qu'il ne fait pas:
+- il ne verifie pas les doublons
+- il ne choisit pas le role par defaut
+- il ne hash pas le mot de passe
+
+Ces decisions appartiennent bien a la couche metier.
+
 ### Lecture detaillee de `UserMapper.java`
 
 1. `@Component` permet a Spring d'injecter cette classe la ou elle est necessaire.
@@ -263,6 +289,10 @@ public interface AuthService {
 ```
 
 Cette interface pose deja une frontiere claire entre le controleur et l'implementation metier.
+
+Le controleur sait seulement qu'il peut demander une inscription.
+Il ne sait pas comment cette inscription est geree en interne.
+Cette abstraction est importante pour garder un code peu couple.
 
 ### Lecture detaillee de `AuthService.java`
 
@@ -289,6 +319,9 @@ public interface UserService {
 Le profil est deja pense en deux usages distincts:
 - lecture du profil
 - mise a jour du profil
+
+Le contrat du service raconte deja une partie du besoin fonctionnel.
+En lisant seulement cette interface, on comprend que le profil n'est pas manipule comme une entite brute, mais comme un flux de lecture et de modification distinct.
 
 ### Lecture detaillee de `UserService.java`
 
@@ -368,6 +401,18 @@ Il orchestre tous les elements poses avant lui:
 - validation metier
 - encodeur de mot de passe
 
+Le plus important pedagogiquement dans cette classe est l'ordre des operations.
+L'inscription n'est pas un simple `save`.
+Elle suit une sequence metier precise:
+
+1. verifier qu'on a le droit de creer ce compte
+2. recuperer le role par defaut
+3. transformer la demande web en entite Java
+4. securiser le mot de passe
+5. sauvegarder seulement quand tout est coherent
+
+Cette logique ordonnee est exactement ce qu'on attend d'une couche service.
+
 ### Lecture detaillee de `AuthServiceImpl.java`
 
 1. `@Service` marque la classe comme service metier Spring.
@@ -384,6 +429,16 @@ Il orchestre tous les elements poses avant lui:
 12. `user.setRoles(Set.of(role))` rattache le role standard a l'utilisateur.
 13. `userDao.save(user)` persiste l'utilisateur complet.
 14. Toute la logique metier importante du flux est concentree ici.
+
+Si on suit l'execution reelle de la methode, on voit que chaque bloc repond a une question precise:
+- l'utilisateur existe-t-il deja ?
+- le role par defaut existe-t-il bien ?
+- l'objet `User` est-il correctement construit ?
+- le mot de passe est-il securise ?
+- peut-on maintenant enregistrer ?
+
+Cette lecture pas a pas est importante, car elle montre qu'un bon service metier ne fait pas tout en vrac.
+Il organise la logique dans un ordre fiable et comprehensible.
 
 ## Fichier 8 - `src/test/java/com/cda/cdajava/service/AuthServiceImplTest.java`
 
@@ -476,6 +531,10 @@ class AuthServiceImplTest {
 Le test vient a la fin du chapitre, une fois la logique en place.
 Il verrouille le comportement voulu avant que l'on ouvre la couche web au chapitre suivant.
 
+Ce choix est important pedagogiquement.
+On valide d'abord le coeur metier en isolation avant de tester l'interface web.
+Ainsi, si une erreur apparait plus tard dans un controleur, on sait deja que la logique de service fonctionne.
+
 ### Lecture detaillee de `AuthServiceImplTest.java`
 
 1. `@ExtendWith(MockitoExtension.class)` active Mockito dans JUnit 5.
@@ -491,6 +550,10 @@ Il verrouille le comportement voulu avant que l'on ouvre la couche web au chapit
 11. Le second test verifie le cas d'erreur sur username deja existant.
 12. `assertThatThrownBy(...)` verifie qu'une `BusinessException` est bien levee.
 
+Ce test ne depend pas de MySQL ni de Redis.
+Il ne depend que du contrat entre `AuthServiceImpl` et ses dependances mockees.
+Cela permet de tester vite, souvent, et de comprendre tres clairement la responsabilite du service.
+
 ## Validation
 
 ```bash
@@ -503,6 +566,9 @@ docker run --rm \
 
 Cette commande execute uniquement le test unitaire du service d'inscription.
 Elle permet de valider la logique metier avant de passer a la couche web complete.
+
+On cible ce test seul volontairement.
+Cela permet de se concentrer sur cette brique precise avant d'empiler les suivantes.
 
 ## Resultat attendu
 
